@@ -16,7 +16,7 @@ dishRouter.route('/')
         Dishes.find({})
             .then((dishes) => {
                 res.statusCode = 200;
-                res.setHeader('Contest-Type', 'application/json');
+                res.setHeader('Content-Type', 'application/json');
                 res.json(dishes);
             }, (err) => {
                 next(err);
@@ -29,7 +29,7 @@ dishRouter.route('/')
             .then((dish) => {
                 console.log('dish created ', dish);
                 res.statusCode = 200;
-                res.setHeader('Contest-Type', 'application/json');
+                res.setHeader('Content-Type', 'application/json');
                 res.json(dish);
             }, (err) => {
                 next(err);
@@ -48,7 +48,7 @@ dishRouter.route('/')
         Dishes.remove({})
             .then((resp) => {
                 res.statusCode = 200;
-                res.setHeader('Contest-Type', 'application/json');
+                res.setHeader('Content-Type', 'application/json');
                 res.json(resp);
             }, (err) => {
                 next(err)
@@ -63,7 +63,7 @@ dishRouter.route('/:dishId')
         Dishes.findById(req.params.dishId)
             .then((dishes) => {
                 res.statusCode = 200;
-                res.setHeader('Contest-Type', 'application/json');
+                res.setHeader('Content-Type', 'application/json');
                 res.json(dishes);
             }, (err) => {
                 next(err);
@@ -80,7 +80,7 @@ dishRouter.route('/:dishId')
         Dishes.findByIdAndUpdate(req.params.dishId, {$set: req.body}, {new: true})
             .then((dishes) => {
                 res.statusCode = 200;
-                res.setHeader('Contest-Type', 'application/json');
+                res.setHeader('Content-Type', 'application/json');
                 res.json(dishes);
             }, (err) => {
                 next(err);
@@ -92,7 +92,7 @@ dishRouter.route('/:dishId')
         Dishes.findByIdAndRemove(req.params.dishId)
             .then((dishes) => {
                 res.statusCode = 200;
-                res.setHeader('Contest-Type', 'application/json');
+                res.setHeader('Content-Type', 'application/json');
                 res.json(dishes);
             }, (err) => {
                 next(err);
