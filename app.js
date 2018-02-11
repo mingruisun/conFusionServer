@@ -48,40 +48,24 @@ app.use(session({
     store: new FileStore()
 }));
 
+app.use('/', index);
+app.use('/users', users);
+
 function auth(req, res, next)
 {
     // check if a cookie exists, if not, prompt user to login, otherwise check the cookie and move forward.
     // console.log(req.signedCookies);
     console.log(req.session);
 
-    if (!req.session.user) {
-        var authHeader = req.headers.authorization;
-
-        if (!authHeader) {
-            var err = new Error('You are not authenticated');
-            res.setHeader('WWW-Authenticate', 'Basic');
-            err.status = 401;
-            return next(err);
-        }
-
-        var auth = new Buffer(authHeader.split(' ')[1], 'base64').toString().split(':');
-        var username = auth[0];
-        var password = auth[1];
-
-        if (username === 'admin' && password === 'password') {
-            // res.cookie('user', 'admin', {signed: true});
-            req.session.user = 'admin';
-            next();
-        }
-        else {
-            var err = new Error('You are not authenticated');
-            res.setHeader('WWW-Authenticate', 'Basic');
-            err.status = 401;
-            return next(err);
-        }
+    if (!req.session.user)
+    {
+        var err = new Error('You are not authenticated');
+        err.status = 403;
+        return next(err);
     }
-    else {
-        if (req.session.user === 'admin')
+    else
+    {
+        if (req.session.user === 'authenticated')
         {
             next();
         }
@@ -98,28 +82,28 @@ app.use(auth);
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', index);
-app.use('/users', users);
 app.use('/dishes', dishRouter);
 app.use('/promotions', promoRouter);
 app.use('/leaders', leaderRouter);
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  var err = new Error('Not Found');
-  err.status = 404;
-  next(err);
-});
+app.use(function(req, res, next)
+    {
+        var err = new Error('Not Found');
+        err.status = 404;
+        next(err);
+    }
+);
 
 // error handler
 app.use(function(err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
+    // set locals, only providing error in development
+    res.locals.message = err.message;
+    res.locals.error = req.app.get('env') === 'development' ? err : {};
 
-  // render the error page
-  res.status(err.status || 500);
-  res.render('error');
+    // render the error page
+    res.status(err.status || 500);
+    res.render('error');
 });
 
 module.exports = app;
