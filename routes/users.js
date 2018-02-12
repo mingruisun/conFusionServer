@@ -3,6 +3,8 @@ var router = express.Router();
 
 const bodyParser = require('body-parser');
 var User = require('../models/user');
+var passport = require('passport');
+
 router.use(bodyParser.json());
 
 // /* GET users listing. */
@@ -13,96 +15,37 @@ router.use(bodyParser.json());
 //     res.end("you are in users page");
 // });
 
-router.post('/signup', function(req, res, next) {
-
-    User.findOne({username: req.body.username})
-        .then((user) =>
+router.post('/signup', (req, res, next) =>
+    {
+        console.log(req.body);
+        User.register(new User({username: req.body.username}), req.body.password, (err, user) =>
             {
-                if (user != null)
+                if (err)
                 {
-                    var err = new Error(`User ${req.body.username} already exists`);
-                    err.status = 403;
-                    next(err);
+                    res.statusCode = 500;
+                    res.setHeader('Content-Type', 'application/json');
+                    res.json({err: err});
                 }
                 else
                 {
-                    return User.create
-                    (
+                    passport.authenticate('local')(req, res, () =>
                         {
-                            username: req.body.username,
-                            password: req.body.password
+                            res.statusCode = 200;
+                            res.setHeader('Content-Type', 'application/json');
+                            res.json({sucess: true, status: 'Registration Successful'})
                         }
                     )
                 }
-
             }
         )
-        .then((user) =>
-            {
-                res.statusCode = 200;
-                res.setHeader('Content-Type', 'application/json');
-                res.json({status: 'Registration Successful', user: user})
-            },
-            (err) => next(err)
-        )
-        .catch((err) => next(err));
-});
+    }
+);
 
-router.post('/login', (req, res, next) =>
+router.post('/login', passport.authenticate('local'), (req, res) =>
     {
-        if (!req.session.user) {
-            var authHeader = req.headers.authorization;
-
-            if (!authHeader) {
-                var err = new Error('You are not authenticated');
-                res.setHeader('WWW-Authenticate', 'Basic');
-                err.status = 401;
-                return next(err);
-            }
-
-            var auth = new Buffer(authHeader.split(' ')[1], 'base64').toString().split(':');
-            var username = auth[0];
-            var password = auth[1];
-
-            User.findOne({username: username})
-                .then((user) =>
-                    {
-                        if (user.password === password) {
-                            // res.cookie('user', 'admin', {signed: true});
-                            req.session.user = 'authenticated';
-                            res.statusCode = 200;
-                            res.setHeader('Content-Type', 'text/plain');
-                            res.end('You are authenticated');
-                        }
-                        else if (user.password !== password)
-                        {
-                            var err = new Error('Your password is incorrect!');
-                            err.status = 403;
-                            return next(err);
-                        }
-                        else if (user === null)
-                        {
-                            var err = new Error('Username does not exist');
-                            err.status = 403;
-                            return next(err);
-                        }
-                        else {
-                            var err = new Error('You are not authenticated');
-                            res.setHeader('WWW-Authenticate', 'Basic');
-                            err.status = 401;
-                            return next(err);
-                        }
-                    }
-                )
-                .catch((err) => next(err));
-
-        }
-        else
-        {
-            res.statusCode = 200;
-            res.setHeader('Content-Type', 'text/plain');
-            res.end('You are already authenticated!');
-        }
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.json({sucess: true, status: 'Logged in Successful'})
     }
 );
 
