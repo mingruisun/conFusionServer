@@ -5,55 +5,64 @@ const Currency = mongoose.Types.Currency;
 
 const commentSchema = new Schema(
     {
-        rating: {
+        rating:
+        {
             type: Number,
             min: 1,
             max: 5,
             required: true
         },
-        comment: {
+        comment:
+        {
             type: String,
             required: true
         },
-        author:{
-            type: String,
-            required: true
+        author:
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User'
         }
     },
     {
         timestamps:true,
-        // usePushEach:true
     }
 )
 const dishSchema = new Schema(
     {
-        name: {
+        name:
+        {
             type: String,
             required: true,
             unique: true
         },
-        description: {
+        description:
+        {
             type: String,
             required: true
         },
-        image: {
+        image:
+        {
             type: String,
             required: true
         },
-        category: {
+        category:
+        {
             type: String,
             required: true
         },
-        label: {
+        label:
+        {
             type: String,
             default: ''
         },
-        price: {
+        price:
+        {
             type: Currency,
             required: true,
             min: 0
         },
-        featured: {
+        featured:
+        {
             type: Boolean,
             default: false
         },
