@@ -9,12 +9,16 @@ var authenticate = require('../authenticate');
 router.use(bodyParser.json());
 
 // /* GET users listing. */
-// router.get('/', function(req, res, next) {
-//     console.log("i'm here");
-//
-//     res.send('respond with a resource');
-//     res.end("you are in users page");
-// });
+router.get('/', authenticate.verifyUser, authenticate.verifyAdmin, function(req, res, next) {
+
+    User.find({})
+        .then((user) => {
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'application/json');
+            res.json(user);
+        })
+        .catch((err) => next(err));
+});
 
 router.post('/signup', (req, res, next) =>
     {
