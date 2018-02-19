@@ -268,23 +268,34 @@ dishRouter.route('/:dishId/comments/:commentId')
             .then((dish) => {
                 if (dish != null && dish.comments.id(req.params.commentId) != null)
                 {
-                    if (req.body.rating)
+                    if ((req.user._id).equals(dish.comments.id(req.params.commentId).author))
                     {
-                        dish.comments.id(req.params.commentId).rating = req.body.rating;
-                    }
+                        if (req.body.rating)
+                        {
+                            dish.comments.id(req.params.commentId).rating = req.body.rating;
+                        }
 
-                    if (req.body.comment)
+                        if (req.body.comment)
+                        {
+                            dish.comments.id(req.params.commentId).comment = req.body.comment;
+                        }
+
+                        dish.save()
+                            .then((dish) =>
+                                {
+                                    res.statusCode = 200;
+                                    res.setHeader('Contest-Type', 'application/json');
+                                    res.json(dish);
+                                }
+                            )
+                            .catch((err) => next(err));
+                    }
+                    else
                     {
-                        dish.comments.id(req.params.commentId).comment = req.body.comment;
+                        var err = new Error("You are not authorized to modify other's comment!");
+                        err.status = 403;
+                        next(err);
                     }
-
-                    dish.save()
-                        .then((dish) => {
-                            res.statusCode = 200;
-                            res.setHeader('Contest-Type', 'application/json');
-                            res.json(dish);
-                        })
-                        .catch((err) => next(err));
 
                     // res.json(dish.comments.id(req.params.commentId));
                 }
@@ -315,14 +326,25 @@ dishRouter.route('/:dishId/comments/:commentId')
             .then((dish) => {
                 if (dish != null && dish.comments.id(req.params.commentId) != null)
                 {
-                    dish.comments.id(req.params.commentId).remove();
-                    dish.save()
-                        .then((dish) => {
-                            res.statusCode = 200;
-                            res.setHeader('Contest-Type', 'application/json');
-                            res.json(dish);
-                        })
-                        .catch((err) => next(err));
+                    if ((req.user._id).equals(dish.comments.id(req.params.commentId).author))
+                    {
+                        dish.comments.id(req.params.commentId).remove();
+                        dish.save()
+                            .then((dish) =>
+                                {
+                                    res.statusCode = 200;
+                                    res.setHeader('Contest-Type', 'application/json');
+                                    res.json(dish);
+                                }
+                            )
+                            .catch((err) => next(err));
+                    }
+                    else
+                    {
+                        var err = new Error("You are not authorized to delete other's comment!");
+                        err.status = 403;
+                        next(err);
+                    }
                 }
                 else
                 {
